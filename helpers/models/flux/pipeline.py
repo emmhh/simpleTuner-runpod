@@ -326,10 +326,17 @@ class FluxPipeline(DiffusionPipeline, SD3LoraLoaderMixin):
         self,
         prompt: Union[str, List[str]],
         prompt_2: Union[str, List[str]],
-        device: Optional[torch.device] = None,
+        do_classifier_free_guidance: bool = False,
+        negative_prompt: str = "",
+        negative_prompt_2: str = "",
         num_images_per_prompt: int = 1,
+        device: Optional[torch.device] = None,
         prompt_embeds: Optional[torch.FloatTensor] = None,
+        negative_prompt_embeds: Optional[torch.FloatTensor] = None,
+        prompt_attention_mask: Optional[torch.FloatTensor] = None,
+        negative_prompt_attention_mask: Optional[torch.FloatTensor] = None,
         pooled_prompt_embeds: Optional[torch.FloatTensor] = None,
+        negative_pooled_prompt_embeds: Optional[torch.FloatTensor] = None,
         max_sequence_length: int = 512,
         lora_scale: Optional[float] = None,
     ):
@@ -341,15 +348,26 @@ class FluxPipeline(DiffusionPipeline, SD3LoraLoaderMixin):
             prompt_2 (`str` or `List[str]`, *optional*):
                 The prompt or prompts to be sent to the `tokenizer_2` and `text_encoder_2`. If not defined, `prompt` is
                 used in all text-encoders
-            device: (`torch.device`):
-                torch device
+            negative_prompt (`str` or `List[str]`, *optional*):
+                The prompt not to guide the image generation. If not defined, one has to pass `negative_prompt_embeds`
+                instead. Ignored when not using guidance (i.e., ignored if `guidance_scale` is less than `1`). For
+            do_classifier_free_guidance (`bool`, *optional*, defaults to `True`):
+                whether to use classifier free guidance or not
             num_images_per_prompt (`int`):
                 number of images that should be generated per prompt
+            device: (`torch.device`):
+                torch device
             prompt_embeds (`torch.FloatTensor`, *optional*):
                 Pre-generated text embeddings. Can be used to easily tweak text inputs, *e.g.* prompt weighting. If not
                 provided, text embeddings will be generated from `prompt` input argument.
+            negative_prompt_embeds (`torch.Tensor`, *optional*):
+                Pre-generated negative text embeddings. For PixArt-Alpha, it's should be the embeddings of the ""
+                string.
             pooled_prompt_embeds (`torch.FloatTensor`, *optional*):
                 Pre-generated pooled text embeddings. Can be used to easily tweak text inputs, *e.g.* prompt weighting.
+                If not provided, pooled text embeddings will be generated from `prompt` input argument.
+            negative_pooled_prompt_embeds (`torch.FloatTensor`, *optional*):
+                Pre-generated negative pooled text embeddings. Required when prompt_embeds are provided.
                 If not provided, pooled text embeddings will be generated from `prompt` input argument.
             clip_skip (`int`, *optional*):
                 Number of layers to be skipped from CLIP while computing the prompt embeddings. A value of 1 means that
