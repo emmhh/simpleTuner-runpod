@@ -1,70 +1,64 @@
-# SimpleTuner needs CU141
-FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04
+# Use the RunPod PyTorch image as the base
+FROM runpod/pytorch:2.4.0-py3.11-cuda12.4.1-devel-ubuntu22.04
 
-# /workspace is the default volume for Runpod & other hosts
+# Set the default working directory
 WORKDIR /workspace
 
-# Update apt-get
-RUN apt-get update -y
+# Install common dependencies and utilities
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends \
+        git \
+        wget \
+        curl \
+        vim \
+        openssh-client \
+        openssh-server \
+        python3.11 \
+        python3.11-venv \
+        nvidia-cuda-toolkit \
+        ocl-icd-libopencl1 \
+        libgl1-mesa-dri && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Prevents different commands from being stuck by waiting
-# on user input during build
-ENV DEBIAN_FRONTEND noninteractive
+# RUN apt-get install -y ca-certificates-java && \
+#     /var/lib/dpkg/info/ca-certificates-java.postinst configure
 
-# Install misc unix libraries
-RUN apt-get install -y --no-install-recommends openssh-server \
-                                               openssh-client \
-                                               git \
-                                               git-lfs \
-                                               wget \
-                                               curl \
-                                               tmux \
-                                               tldr \
-                                               nvtop \
-                                               vim \
-                                               rsync \
-                                               net-tools \
-                                               less \
-                                               iputils-ping \
-                                               7zip \
-                                               zip \
-                                               unzip \
-                                               htop \
-                                               inotify-tools
 
-# Set up git to support LFS, and to store credentials; useful for Huggingface Hub
-RUN git config --global credential.helper store && \
-    git lfs install
+# Install Python packages and Jupyter
+# RUN python3.11 -m pip install --upgrade pip && \
+# pip install jupyterlab simple-tuner 
+# Add other required packages here
 
-# Install Python VENV
-RUN apt-get install -y python3.10-venv
+# # Install any common dependencies that should be baked into the image
+# RUN apt-get update -y && \
+#     apt-get install -y --no-install-recommends git wget curl vim
 
-# Ensure SSH access. Not needed for Runpod but is required on Vast and other Docker hosts
-EXPOSE 22/tcp
+#setup port for jupyter notebook    
+EXPOSE 8888 22
 
-# Python
-RUN apt-get update -y && apt-get install -y python3 python3-pip
-RUN python3 -m pip install pip --upgrade
+# Clone the SimpleTuner repository at build time if it doesn't change often
+RUN git clone --branch=release https://github.com/chrevdog/SimpleTuner.git /workspace/SimpleTuner
 
-# HF
-ENV HF_HOME=/workspace/huggingface
+# Install Python dependencies
+RUN python3.11 -m venv /workspace/SimpleTuner/.venv && \
+    /workspace/SimpleTuner/.venv/bin/pip install -U pip && \
+    /workspace/SimpleTuner/.venv/bin/pip install poetry && \
+    cd /workspace/SimpleTuner && \
+    .venv/bin/poetry install --no-root
 
-RUN pip3 install "huggingface_hub[cli]"
+# Copy the custom start script
+COPY docker-start.sh /start.sh
 
-# WanDB
-RUN pip3 install wandb
+# Explicitly set execution permissions
+RUN chmod +x /start.sh
 
-# Clone SimpleTuner
-RUN git clone https://github.com/bghira/SimpleTuner --branch release
-# RUN git clone https://github.com/bghira/SimpleTuner --branch main # Uncomment to use latest (possibly unstable) version
-
-# Install SimpleTuner
-RUN pip3 install poetry
-RUN cd SimpleTuner && python3 -m venv .venv && poetry install --no-root
-RUN chmod +x SimpleTuner/train.sh
-
-# Copy start script with exec permissions
-COPY --chmod=755 docker-start.sh /start.sh
-
-# Dummy entrypoint
+# Set the entrypoint to your custom start script
 ENTRYPOINT [ "/start.sh" ]
+
+    # # Copy the custom start and post-start scripts with execution permissions
+#COPY --chmod=755 docker-start.sh /start.sh
+# # COPY --chmod=755 docker-post-start.sh /docker-post-start.sh
+
+# # Set the entrypoint to your custom start script
+# ENTRYPOINT [ "/start.sh" ]

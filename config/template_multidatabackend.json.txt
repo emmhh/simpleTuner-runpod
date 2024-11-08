@@ -1,0 +1,31 @@
+[
+    {
+      "id": "TRAINING_IMAGE_FOLDER",
+      "type": "local",
+      "dataset_type": "image",
+      "crop": true,
+      "crop_aspect": "square",
+      "crop_style": "center",
+      "resolution": 1024,
+      "minimum_image_size": 1024,
+      "maximum_image_size": 1024,
+      "target_downsample_size": 1024,
+      "resolution_type": "pixel_area",
+      "cache_dir_vae": "cache/vae/TRAINING_IMAGE_FOLDER",
+      "instance_data_dir": "datasets/TRAINING_IMAGE_FOLDER",
+      "disabled": false,
+      "skip_file_discovery": "",
+      "caption_strategy": "textfile",
+      "metadata_backend": "json",
+      "repeats": 1000
+    },
+    {
+      "id": "text-embeds",
+      "type": "local",
+      "dataset_type": "text_embeds",
+      "default": true,
+      "cache_dir": "cache/text/flux/TRAINING_IMAGE_FOLDER",
+      "disabled": false,
+      "write_batch_size": 128
+    }
+  ]
