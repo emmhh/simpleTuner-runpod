@@ -22,12 +22,6 @@ echo "config.env file created successfully at /workspace/simpletuner/config/conf
 # Activate the virtual environment
 source .venv/bin/activate
 
-# Login to WandB using the environment variable
-echo "${WANDB_API_KEY}" | wandb login --relogin
-
-# Login to Hugging Face using the environment variable
-echo "${HUGGING_FACE_HUB_TOKEN}" | huggingface-cli login --token
-
 # Install the required package
 pip install optimum-quanto
 
