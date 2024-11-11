@@ -69,7 +69,7 @@ RUN pip install "huggingface_hub[cli]"
 RUN pip install wandb
 
 # Clone SimpleTuner
-RUN git clone https://github.com/chrevdog/SimpleTuner --branch clean-poetry
+RUN git clone --branch clean-poetry https://github.com/chrevdog/SimpleTuner.git /workspace/SimpleTuner
 # RUN git clone https://github.com/bghira/SimpleTuner --branch main # Uncomment to use latest (possibly unstable) version
 
 # Install SimpleTuner
