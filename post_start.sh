@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Navigate to the SimpleTuner directory
-cd /workspace/simpletuner
+cd /workspace/SimpleTuner
 
 # Create or overwrite the config.env file in the config directory
 cat <<EOL > config/config.env
@@ -17,7 +17,7 @@ DISABLE_LD_OVERRIDE=false
 ACCELERATE_EXTRA_ARGS="--num_cpu_threads_per_process 1"
 EOL
 
-echo "config.env file created successfully at /workspace/simpletuner/config/config.env"
+echo "config.env file created successfully at /workspace/SimpleTuner/config/config.env"
 
 # Activate the virtual environment
 source .venv/bin/activate
