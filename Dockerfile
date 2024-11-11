@@ -74,8 +74,13 @@ RUN git clone --branch clean-poetry https://github.com/chrevdog/SimpleTuner.git 
 
 # Install SimpleTuner
 RUN pip install poetry
+RUN poetry config virtualenvs.create false
 RUN cd SimpleTuner && python -m venv .venv && poetry install --no-root
 RUN chmod +x SimpleTuner/train.sh
+
+
+# Install huggingface_hub with CLI tools
+RUN pip install "huggingface_hub[cli]"
 
 # Copy the custom start script
 COPY docker-start.sh /start.sh
