@@ -19,6 +19,9 @@ EOL
 
 echo "config.env file created successfully at /workspace/SimpleTuner/config/config.env"
 
+# Set permissions for config.env
+chmod 644 config/config.env
+
 # Activate the virtual environment
 source .venv/bin/activate
 
