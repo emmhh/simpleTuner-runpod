@@ -80,12 +80,12 @@ RUN chmod +x SimpleTuner/train.sh
 # Copy the custom start script
 COPY docker-start.sh /start.sh
 COPY post_start.sh /post_start.sh
-COPY pre-train.sh /pre-train.sh
+# COPY pre-train.sh /pre-train.sh
 
 # Explicitly set execution permissions
 RUN chmod +x /start.sh
 RUN chmod +x /post_start.sh
-RUN chmod +x /pre-train.sh
+# RUN chmod +x /pre-train.sh
 
 # Dummy entrypoint
 ENTRYPOINT [ "/start.sh" ]

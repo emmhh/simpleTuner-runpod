@@ -1,27 +1,5 @@
 #!/usr/bin/env bash
 
-# Navigate to the SimpleTuner directory
-cd /workspace/SimpleTuner
-
-# Activate the virtual environment
-source .venv/bin/activate
-
-# Login to WandB using the environment variable if not already logged in
-if [ -n "${WANDB_API_KEY}" ] && [ ! -f "$HOME/.netrc" ]; then
-    echo "Logging into WandB..."
-    wandb login "${WANDB_API_KEY}" --relogin
-else
-    echo "WANDB_API_KEY is not set or WandB is already logged in."
-fi
-
-# Login to Hugging Face using the environment variable if not already logged in
-if [ -n "${HUGGING_FACE_HUB_TOKEN}" ] && [ ! -f "$HOME/.huggingface/token" ]; then
-    echo "Logging into Hugging Face..."
-    echo "${HUGGING_FACE_HUB_TOKEN}" | huggingface-cli login --token
-else
-    echo "HUGGING_FACE_HUB_TOKEN is not set or Hugging Face CLI is already logged in."
-fi
-
 # Pull config from config.env
 [ -f "config/config.env" ] && source config/config.env
 
