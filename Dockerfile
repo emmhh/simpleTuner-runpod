@@ -60,10 +60,10 @@ EXPOSE 8888 22
 # RUN apt-get update -y && apt-get install -y python3.11 python3.11-pip
 # RUN python3.11 -m pip install pip --upgrade
 
-# HF
-ENV HF_HOME=/workspace/huggingface
+# # HF
+# ENV HF_HOME=/workspace/huggingface
 
-RUN pip install "huggingface_hub[cli]"
+# RUN pip install "huggingface_hub[cli]"
 
 # WanDB
 RUN pip install wandb
@@ -79,9 +79,11 @@ RUN chmod +x SimpleTuner/train.sh
 
 # Copy the custom start script
 COPY docker-start.sh /start.sh
+COPY post_start.sh /post_start.sh
 
 # Explicitly set execution permissions
 RUN chmod +x /start.sh
+RUN chmod +x /post_start.sh
 
 # Dummy entrypoint
 ENTRYPOINT [ "/start.sh" ]
