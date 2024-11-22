@@ -50,34 +50,20 @@ RUN apt-get install 'ffmpeg'\
 RUN git config --global credential.helper store && \
     git lfs install
 
-# # Install Python VENV
-# RUN apt-get install -y python3.10-venv
-
 #setup port for jupyter notebook    
 EXPOSE 8888 22
-
-# # Python
-# RUN apt-get update -y && apt-get install -y python3.11 python3.11-pip
-# RUN python3.11 -m pip install pip --upgrade
-
-# # HF
-# ENV HF_HOME=/workspace/huggingface
-
-# RUN pip install "huggingface_hub[cli]"
 
 # WanDB
 RUN pip install wandb
 
-# Clone SimpleTuner
-RUN git clone --branch clean-poetry https://github.com/chrevdog/SimpleTuner.git /workspace/SimpleTuner
-# RUN git clone https://github.com/bghira/SimpleTuner --branch main # Uncomment to use latest (possibly unstable) version
+# Copy SimpleTuner into the container
+COPY SimpleTuner /workspace/SimpleTuner
 
 # Install SimpleTuner
 RUN pip install poetry
 RUN poetry config virtualenvs.create false
 RUN cd SimpleTuner && python -m venv .venv && poetry install --no-root
 RUN chmod +x SimpleTuner/train.sh
-
 
 # Install huggingface_hub with CLI tools
 RUN pip install "huggingface_hub[cli]"
