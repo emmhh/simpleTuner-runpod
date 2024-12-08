@@ -67,6 +67,8 @@ RUN cd /workspace/SimpleTuner && \
 COPY docker-start.sh /start.sh
 COPY post_start.sh /post_start.sh
 RUN chmod +x /start.sh /post_start.sh
+RUN apt-get update && apt-get install -y dos2unix && \
+    dos2unix /start.sh /post_start.sh
 
 # Set entrypoint
 ENTRYPOINT [ "/start.sh" ]
