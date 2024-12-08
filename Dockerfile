@@ -1,24 +1,19 @@
 # Use the RunPod PyTorch image as the base
 FROM runpod/pytorch:2.4.0-py3.11-cuda12.4.1-devel-ubuntu22.04
 
-# /workspace is the default volume for Runpod & other hosts
+# Set default working directory
 WORKDIR /workspace
 
-# Update apt-get
-RUN apt-get update -y
-
-# Prevents different commands from being stuck by waiting
-# on user input during build
+# Prevent interactive prompts during apt operations
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install libg dependencies
-RUN apt install libgl1-mesa-glx -y
-RUN apt-get install 'ffmpeg'\
-    'libsm6'\
-    'libxext6'  -y
-
-    RUN apt-get update -y && \
+# Install apt dependencies and clean up
+RUN apt-get update -y && \
     apt-get install -y --no-install-recommends \
+        libgl1-mesa-glx \
+        ffmpeg \
+        libsm6 \
+        libxext6 \
         openssh-server \
         openssh-client \
         git \
@@ -33,7 +28,7 @@ RUN apt-get install 'ffmpeg'\
         net-tools \
         less \
         iputils-ping \
-        7zip \
+        p7zip-full \
         zip \
         unzip \
         htop \
@@ -46,37 +41,32 @@ RUN apt-get install 'ffmpeg'\
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Set up git to support LFS, and to store credentials; useful for Huggingface Hub
-RUN git config --global credential.helper store && \
-    git lfs install
+# Set up git and install git-lfs
+RUN git config --global credential.helper store && git lfs install
 
-#setup port for jupyter notebook    
+# Expose ports for Jupyter Notebook and SSH
 EXPOSE 8888 22
 
-# WanDB
-RUN pip install wandb
+# Install Python packages
+RUN pip install --no-cache-dir \
+    wandb \
+    poetry \
+    "huggingface_hub[cli]"
 
-# Copy SimpleTuner into the container
-COPY SimpleTuner /workspace/SimpleTuner
-
-# Install SimpleTuner
-RUN pip install poetry
+# Configure Poetry
 RUN poetry config virtualenvs.create false
-RUN cd SimpleTuner && python -m venv .venv && poetry install --no-root
-RUN chmod +x SimpleTuner/train.sh
 
-# Install huggingface_hub with CLI tools
-RUN pip install "huggingface_hub[cli]"
+# Copy and set up the SimpleTuner application
+COPY . /workspace/SimpleTuner
+RUN cd /workspace/SimpleTuner && \
+    python -m venv .venv && \
+    poetry install --no-root && \
+    chmod +x train.sh
 
-# Copy the custom start script
+# Copy custom scripts and set permissions
 COPY docker-start.sh /start.sh
 COPY post_start.sh /post_start.sh
-# COPY pre-train.sh /pre-train.sh
+RUN chmod +x /start.sh /post_start.sh
 
-# Explicitly set execution permissions
-RUN chmod +x /start.sh
-RUN chmod +x /post_start.sh
-# RUN chmod +x /pre-train.sh
-
-# Dummy entrypoint
+# Set entrypoint
 ENTRYPOINT [ "/start.sh" ]
