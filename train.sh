@@ -15,12 +15,23 @@ else
 fi
 
 # Login to Hugging Face using the environment variable if not already logged in
-if [ -n "${HUGGING_FACE_HUB_TOKEN}" ] && [ ! -f "$HOME/.huggingface/token" ]; then
-    echo "Logging into Hugging Face..."
-    echo "${HUGGING_FACE_HUB_TOKEN}" | huggingface-cli login --token
+if [ -n "${HUGGING_FACE_HUB_TOKEN}" ]; then
+    # Ensure Hugging Face CLI is logged in by checking token presence
+    if [ ! -f "$HOME/.huggingface/token" ]; then
+        echo "Logging into Hugging Face..."
+        huggingface-cli login --token "${HUGGING_FACE_HUB_TOKEN}"
+        if [ $? -ne 0 ]; then
+            echo "Error: Hugging Face login failed. Check your HUGGING_FACE_HUB_TOKEN."
+            exit 1
+        fi
+    else
+        echo "Hugging Face CLI is already logged in."
+    fi
 else
-    echo "HUGGING_FACE_HUB_TOKEN is not set or Hugging Face CLI is already logged in."
+    echo "Error: HUGGING_FACE_HUB_TOKEN is not set."
+    exit 1
 fi
+
 
 # Pull config from config.env
 [ -f "config/config.env" ] && source config/config.env
