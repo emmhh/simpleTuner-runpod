@@ -59,9 +59,8 @@ RUN poetry config virtualenvs.create false
 # Copy and set up the SimpleTuner application
 COPY . /workspace/SimpleTuner
 RUN cd /workspace/SimpleTuner && \
-    python -m venv .venv && \
-    poetry install --no-root && \
-    chmod +x train.sh
+    poetry config virtualenvs.in-project true && \
+    poetry install --no-root
 
 # Copy custom scripts and set permissions
 COPY docker-start.sh /start.sh
