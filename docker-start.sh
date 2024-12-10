@@ -64,10 +64,25 @@ setup_ssh() {
 }
 
 # Export env vars
+# export_env_vars() {
+#     echo "Exporting environment variables..."
+#     printenv | grep -E '^RUNPOD_|^PATH=|^_=' | awk -F = '{ print "export " $1 "=\"" $2 "\"" }' >> /etc/rp_environment
+#     echo 'source /etc/rp_environment' >> ~/.bashrc
+# }
+
+# FIX: export everything in the environment, because in runpod bash when running tran.sh, the environment variables are not available
 export_env_vars() {
     echo "Exporting environment variables..."
-    printenv | grep -E '^RUNPOD_|^PATH=|^_=' | awk -F = '{ print "export " $1 "=\"" $2 "\"" }' >> /etc/rp_environment
+    printenv | awk -F = '{ print "export " $1 "=\"" $2 "\"" }' > /etc/rp_environment
     echo 'source /etc/rp_environment' >> ~/.bashrc
+    source /etc/rp_environment
+}
+
+# Validate critical environment variables
+validate_env_vars() {
+    if [[ -z "$WANDB_API_KEY" || -z "$HUGGING_FACE_HUB_TOKEN" ]]; then
+        echo "###Error: WANDB_API_KEY or HUGGING_FACE_HUB_TOKEN is not set."
+    fi
 }
 
 # Start jupyter lab
@@ -90,8 +105,10 @@ execute_script "/pre_start.sh" "Running pre-start script..."
 echo "Pod Started"
 
 setup_ssh
-start_jupyter
+validate_env_vars
+# export all environment variables before starting jupyter
 export_env_vars
+start_jupyter
 
 execute_script "/post_start.sh" "Running post-start script..."
 
