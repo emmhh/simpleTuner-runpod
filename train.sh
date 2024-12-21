@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+# Log file path
+LOG_FILE="/workspace/SimpleTuner/train.log"
+# Empty the log file
+touch "$LOG_FILE"
+
+# Redirect stdout and stderr to both the console and the log file
+exec > >(while read -r line; do echo "$(date '+%Y-%m-%d %H:%M:%S') $line"; done | tee -a "$LOG_FILE") 2>&1
+
 # Navigate to the SimpleTuner directory
 cd /workspace/SimpleTuner
 
@@ -133,6 +141,19 @@ else
     echo "Accelerate config file not found: ${ACCELERATE_CONFIG_PATH}. Using values from config.env."
     accelerate launch ${ACCELERATE_EXTRA_ARGS} --mixed_precision="${MIXED_PRECISION}" --num_processes="${TRAINING_NUM_PROCESSES}" --num_machines="${TRAINING_NUM_MACHINES}" --dynamo_backend="${TRAINING_DYNAMO_BACKEND}" train.py
 
+fi
+
+# Verify successful training and write status
+if [ $? -eq 0 ]; then
+    echo "Training completed successfully at $(date)" >> "$LOG_FILE"
+    echo "Writing TRAINING_COMPLETE to /workspace/SimpleTuner/status.txt"
+    echo "TRAINING_COMPLETE" >> "/workspace/SimpleTuner/status.txt"
+
+else
+    echo "Training failed at $(date). Check logs for details." >> "$LOG_FILE"
+    echo "Writing TRAINING_FAILED to /workspace/SimpleTuner/status.txt"
+    echo "TRAINING_FAILED" >> "/workspace/SimpleTuner/status.txt"
+    exit 1
 fi
 
 exit 0
