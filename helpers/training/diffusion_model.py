@@ -14,6 +14,12 @@ def determine_subfolder(folder_value: str = None):
 
 
 def load_diffusion_model(args, weight_dtype):
+    # DEBUG: LOG MODEL PATHS to validate it's using local models
+    logger.info(f"### Loading Flux model from: {args.pretrained_model_name_or_path}")
+    logger.info(f"### Loading transformer from: {args.pretrained_transformer_model_name_or_path}")
+    logger.info(f"### Loading text encoder from: {args.pretrained_text_encoder_2_model_name_or_path}")
+    logger.info(f"### Loading VAE from: {args.pretrained_vae_model_name_or_path}")
+
     pretrained_load_args = {
         "revision": args.revision,
         "variant": args.variant,
