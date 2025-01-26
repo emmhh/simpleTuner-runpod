@@ -41,6 +41,8 @@ venv/
 *.swo
 *.swn
 
+datasets/*
+
 # OS generated files
 .DS_Store
 Thumbs.db
@@ -50,7 +52,7 @@ files.tbz
 work
 multidatabackend.json
 multidatabackend_sd2x.json
-
+.env
 config/*.json
 config/*.env
 wandb/
